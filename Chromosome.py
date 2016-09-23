@@ -6,8 +6,11 @@ mutation operator for the GA.
 class Chromosome(object):
     def __init__(self, number_of_genes, lower_bound, upper_bound, random):
         self._number_of_genes = number_of_genes
+
+        #Array containing the min and max possible for each genes
         self._lower_bound = lower_bound
         self._upper_bound = upper_bound
+
         self._random = random
         self._array_of_genes = []
 
@@ -44,10 +47,7 @@ class Chromosome(object):
     def uniformMutationOverAllRange(self, index_gene):
         range_function = ((self._upper_bound[index_gene] - self._lower_bound[index_gene]))
         new_value = (range_function*self._random.rand()) + self._lower_bound[index_gene]#Adding a value from an uniform distribution
-        if(new_value > self._upper_bound[index_gene]):
-            new_value = self._upper_bound[index_gene]
-        elif(new_value < self._lower_bound[index_gene]):
-            new_value = self._lower_bound[index_gene]
+        #Because we use rand() function from numpy, we know for sure that the new value will be within allowed range.
         self._array_of_genes[index_gene] = new_value
 
     def gaussian_mutation(self, lower_index, upper_index):
@@ -62,10 +62,8 @@ class Chromosome(object):
             elif (random_sample < -3.0):
                 random_sample = -3.
 
-            #Rescale the sample so that the value correspond to 1% of the total range
-            new_value = 0.001 * (((random_sample - (-3.0)) * (self._upper_bound[i] - self._lower_bound[i]))/(3.0 - (-3.0))
-                        +self._lower_bound[i])
-            new_value = self._array_of_genes[i] + new_value
+            #Rescale the sample so that the value correspond to 1% of the total range and add it to the gene array.
+            new_value = self._array_of_genes[i] + 0.01 * random_sample * (self._upper_bound[i] - self._lower_bound[i])
 
             #Make sure we don't go out of bound
             if (new_value > self._upper_bound[i]):
