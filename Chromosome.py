@@ -34,7 +34,7 @@ class Chromosome(object):
         type_of_mutation_given = self._random.random_sample()
         if (mutation_rate == -1.0):
             if type_of_mutation_given > 0.1:#Least disruptive mutation
-                self.gaussianMutation(upper_index, lower_index)
+                self.gaussian_mutation(upper_index, lower_index)
             elif type_of_mutation_given > 0.04:#Highly disruptive, but only affect one gene
                 index_gene = self._random.randint(0, self._number_of_genes)
                 self.uniformMutationOverAllRange(index_gene)
