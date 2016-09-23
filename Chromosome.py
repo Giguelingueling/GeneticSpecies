@@ -23,6 +23,32 @@ class Chromosome(object):
     def get_gene(self, index):
         return self._array_of_genes[index]
 
+
+    def mutateChromosome(self, mutation_rate=-1.0):
+        first_index = self._random.randint(0, self._number_of_genes)
+        second_index = self._random.randint(0, self._number_of_genes)
+
+        upper_index = max([first_index, second_index])
+        lower_index = min([first_index, second_index])
+
+        type_of_mutation_given = self._random.random_sample()
+        if (mutation_rate == -1.0):
+            if type_of_mutation_given > 0.1:#Least disruptive mutation
+                self.gaussianMutation(upper_index, lower_index)
+            elif type_of_mutation_given > 0.04:#Highly disruptive, but only affect one gene
+                self.uniformMutationOverAllRange(lower_index)
+            else:
+                self.swapChromosome(upper_index, lower_index)#Potentially highly disruptive and affect two genes
+
+    def uniformMutationOverAllRange(self, index_gene):
+        range_function = ((self._upper_bound[index_gene] - self._lower_bound[index_gene]))
+        new_value = (range_function*self._random.rand()) + self._lower_bound[index_gene]#Adding a value from an uniform distribution
+        if(new_value > self._upper_bound[index_gene]):
+            new_value = self._upper_bound[index_gene]
+        elif(new_value < self._lower_bound[index_gene]):
+            new_value = self._lower_bound[index_gene]
+        self._array_of_genes[index_gene] = new_value
+
     def gaussian_mutation(self, lower_index, upper_index):
         #For each value between the index
         for i in range(lower_index, upper_index):
@@ -47,3 +73,12 @@ class Chromosome(object):
                 new_value = self._lower_bound[i]
 
             self._array_of_genes[i] = new_value
+
+    def swapChromosome(self, upper_index, lower_index):
+        temporary = self._array_of_genes[upper_index]
+
+        #Linear interpolation to variable temporary to be within the allowed bound of the gene it will be assigned to
+        temporary = (((temporary-self._lower_bound[upper_index])*(self._upper_bound[lower_index]-self._lower_bound[lower_index]))/(self._upper_bound[upper_index] - self._lower_bound[upper_index]))+self._lower_bound[lower_index]
+
+        self._array_of_genes[upper_index] = (((self._array_of_genes[lower_index]-self._lower_bound[lower_index])*(self._upper_bound[upper_index]-self._lower_bound[upper_index]))/(self._upper_bound[lower_index] - self._lower_bound[lower_index]))+self._lower_bound[upper_index]
+        self._array_of_genes[lower_index] = temporary
