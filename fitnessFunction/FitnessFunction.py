@@ -17,7 +17,6 @@ def schwefel_function(array_genes, number_of_genes):
 def branin(x):
   x_0 = x[0]
   x_1 = x[1]
-
   y = np.square(x_1 - (5.1/(4.0*np.square(math.pi)))*np.square(x_0) + (5.0/math.pi)*x_0 - 6.0) + 10.0*(1-(1./(8*math.pi)))*np.cos(x_0) + 10.0
 
   result = y
