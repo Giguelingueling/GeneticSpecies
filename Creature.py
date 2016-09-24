@@ -1,3 +1,4 @@
+import numpy as np
 
 '''
 Represent a creature. That is a Chromosome (input of the function) and a fitness (output of the function)
@@ -19,16 +20,38 @@ class Creature(object):
         self._number_dimensions = number_of_dimensions
         self._position = self.generate_position_random()
         self._memory_best_position = self._position
+        self._velocity = self.generate_velocity_random()
 
     #Generate the position of the creature randomly
     def generate_position_random(self):
         position = []
         #Randomly initialize the position using an uniform distribution between the lower and upper bound
         for i in range(self._number_dimensions):
-            random_genes = self._random.random_sample() * (self._upper_bound[i] - self._lower_bound[i]) + \
+            random_dimension_value = self._random.random_sample() * (self._upper_bound[i] - self._lower_bound[i]) + \
                            self._lower_bound[i]
-            position.append(random_genes)
-        return position
+            position.append(random_dimension_value)
+        return np.array(position)
+
+    def generate_velocity_random(self):
+        velocity = []
+        #Randomly initialize the position using an uniform distribution between the lower and upper bound
+        for i in range(self._number_dimensions):
+            random_dimension_value = self._random.random_sample() * (self._upper_bound[i] - self._lower_bound[i]) + \
+                           self._lower_bound[i]
+            velocity.append(random_dimension_value)
+        return np.array(velocity)
+
+    #BE CAREFUL WITH BEST CREATURE TO SEND A HARD COPY SO THAT IF IT UPDATE THE POSITION IT DOESN'T CHANGE THE BEST CREATURE POSITION
+    def update_velocity(self, inertia_factor, self_confidence, swarm_confidence, particle_curiosity, best_creature):
+        current_motion = inertia_factor*self._velocity
+        particle_memory = self_confidence*self._random.rand(self._number_dimensions)*\
+                          (self._memory_best_position-self._position)
+        swarm_influence = swarm_confidence*self._random.rand(self._number_dimensions)*\
+                          (best_creature.get_position()-self._position)
+        self._velocity = current_motion+particle_memory+swarm_influence
+
+    def update_position(self):
+        self._position = self._position+self._velocity
 
     def get_ID(self):
         return self._ID
