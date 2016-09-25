@@ -1,4 +1,5 @@
 from Creature import Creature
+import numpy as np
 
 class Swarm(object):
     def __init__(self, swarm_size, number_of_dimensions, lower_bound, upper_bound, random, fitness_function):
@@ -18,6 +19,12 @@ class Swarm(object):
             self._ID += 1
 
         return list_creatures
+
+    def add_creature_to_swarm(self, position, fitness_function):
+        position = np.array(position)
+        self._swarm_of_creatures.append(Creature(self._ID, self._number_of_dimensions, self._lower_bound,
+                                       self._upper_bound, self._random, fitness_function, position=position))
+        self._ID += 1
 
     def get_list_position(self):
         list_position = []

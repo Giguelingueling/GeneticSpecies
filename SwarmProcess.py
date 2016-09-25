@@ -17,11 +17,12 @@ class SwarmProcess(object):
         self._lower_bound = lower_bound
         self._upper_bound = upper_bound
         self._swarm_size = swarm_size
+        self._fitness_function = fitness_function
 
         #Create the main swarm responsible to explore the function
         self._swarm = Swarm(swarm_size=self._swarm_size, number_of_dimensions=self._number_of_dimensions,
                             lower_bound=self._lower_bound, upper_bound=self._upper_bound, random=self._random,
-                            fitness_function=fitness_function)
+                            fitness_function=self._fitness_function)
 
 
     def run_swarm_process(self):
@@ -33,7 +34,13 @@ class SwarmProcess(object):
         kmeans.fit(swarm_positions)#Train KMeans
         centers = kmeans.cluster_centers_#Get the centers
         print centers
-        print np.array(swarm_positions)
+        print self._swarm.get_list_position()
+
+        #Add two new creatures with their position corresponding to the centers of kmeans.
+        self._swarm.add_creature_to_swarm(centers[0], self._fitness_function)
+        self._swarm.add_creature_to_swarm(centers[1], self._fitness_function)
+
+        print self._swarm.get_list_position()#Get the list of point in the space for KMeans
 
 lower_bound = np.array([-500.0, -500.0])
 upper_bound = np.array([500.0, 500.0])

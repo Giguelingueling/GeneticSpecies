@@ -5,7 +5,7 @@ import FitnessFunction
 Represent a creature. That is a Chromosome (input of the function) and a fitness (output of the function)
 '''
 class Creature(object):
-    def __init__(self, ID, number_of_dimensions, lower_bound, upper_bound, random, fitness_function):
+    def __init__(self, ID, number_of_dimensions, lower_bound, upper_bound, random, fitness_function, position=None):
         self._random = random
 
         self._ID = ID
@@ -16,10 +16,14 @@ class Creature(object):
         self._upper_bound = upper_bound
 
         self._number_dimensions = number_of_dimensions
-        self._position = self.generate_vector_random()
         self._velocity = self.generate_vector_random()
 
-        # For the fitness, lower is better.
+        if position is None:
+            self._position = self.generate_vector_random()
+        else:
+            self._position = position
+
+        #For the fitness, lower is better.
         self.fitness = FitnessFunction.calculate_fitness(fitness_function, self._position,
                                                          self._number_dimensions)
 
