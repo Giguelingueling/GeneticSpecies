@@ -33,3 +33,9 @@ class Swarm(object):
     def run_swarm_optimization(self, number_of_max_iterations, function_to_optimize):
         for i in range(number_of_max_iterations):
             a=1
+
+    def update_swarm(self, fitness_function, inertia_factor, self_confidence, swarm_confidence,
+                     creature_adventure_sense):
+        #Before updating, we have to find the best creature of the current swarm iteration.
+
+        for creature in self._swarm_of_creatures:
