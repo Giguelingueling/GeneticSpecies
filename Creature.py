@@ -1,4 +1,5 @@
 import numpy as np
+import FitnessFunction
 
 '''
 Represent a creature. That is a Chromosome (input of the function) and a fitness (output of the function)
@@ -19,8 +20,8 @@ class Creature(object):
         self._velocity = self.generate_vector_random()
 
         # For the fitness, lower is better.
-        self.fitness = fitness_function(
-            self._position)  # Since we minimize function, we initialize the fitness with the highest possible value
+        self.fitness = FitnessFunction.calculate_fitness(fitness_function, self._position,
+                                                         self._number_dimensions)
 
         #Add the variable useful for the creature memory
         self._memory_best_position = self._position
@@ -71,7 +72,7 @@ class Creature(object):
         self.update_position()
 
         #Calculate the fitness
-        self._fitness = fitness_function(self._position)
+        self._fitness = FitnessFunction.calculate_fitness(fitness_function, self._position, self._number_dimensions)
 
         #If the new fitness is better than its best fitness within memory, update the creature memory
         if(self._fitness < self._memory_best_fitness):

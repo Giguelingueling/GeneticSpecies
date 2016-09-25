@@ -1,6 +1,8 @@
 import math
 import numpy as np
 
+def calculate_fitness(fun_fitness, *args):
+    fun_fitness(*args)
 
 #Between -500 and 500
 def schwefel_function(array_genes, number_of_genes):
@@ -14,7 +16,7 @@ def schwefel_function(array_genes, number_of_genes):
 
 #Between -5 and 10 for x
 #Between 0 and 15 for y
-def branin(x):
+def branin(x, number_of_genes):
   x_0 = x[0]
   x_1 = x[1]
   y = np.square(x_1 - (5.1/(4.0*np.square(math.pi)))*np.square(x_0) + (5.0/math.pi)*x_0 - 6.0) + 10.0*(1-(1./(8*math.pi)))*np.cos(x_0) + 10.0

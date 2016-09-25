@@ -1,23 +1,29 @@
 from Creature import Creature
 
 class Swarm(object):
-    def __init__(self, swarm_size, number_of_dimensions, lower_bound, upper_bound, random):
+    def __init__(self, swarm_size, number_of_dimensions, lower_bound, upper_bound, random, fitness_function):
         self._ID = 0
         self._random = random
         self._number_of_dimensions = number_of_dimensions
         self._lower_bound = lower_bound
         self._upper_bound = upper_bound
         self._swarm_size = swarm_size
-        self._swarm_of_creatures = self.create_creatures(swarm_size)
+        self._swarm_of_creatures = self.create_creatures(swarm_size, fitness_function)
 
-    def create_creatures(self, swarm_size):
+    def create_creatures(self, swarm_size, fitness_function):
         list_creatures = []
         for i in range(swarm_size):
             list_creatures.append(Creature(self._ID, self._number_of_dimensions, self._lower_bound,
-                                           self._upper_bound, self._random))
+                                           self._upper_bound, self._random, fitness_function))
             self._ID += 1
 
         return list_creatures
+
+    def get_list_position(self):
+        list_position = []
+        for creature in self._swarm_of_creatures:
+            list_position.append(creature.get_position())
+        return list_position
 
     #Get the creature with the lowest fitness in the swarm.
     def get_best_creature(self):
