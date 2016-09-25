@@ -21,4 +21,5 @@ class SwarmProcess(object):
 
 
     def run_swarm_process(self):
+        #First we find the combination of creature that cover the space the more thoroughly.
         a=1

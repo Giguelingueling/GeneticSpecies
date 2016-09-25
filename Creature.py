@@ -15,8 +15,8 @@ class Creature(object):
         self._upper_bound = upper_bound
 
         self._number_dimensions = number_of_dimensions
-        self._position = self.generate_position_random()
-        self._velocity = self.generate_velocity_random()
+        self._position = self.generate_vector_random()
+        self._velocity = self.generate_vector_random()
 
         # For the fitness, lower is better.
         self.fitness = fitness_function(
@@ -26,19 +26,10 @@ class Creature(object):
         self._memory_best_position = self._position
         self._memory_best_fitness = self.fitness
 
-    #Generate the position of the creature randomly
-    def generate_position_random(self):
+    #Generate the position or the velocity of the creature randomly
+    def generate_vector_random(self):
         return self._random.uniform(size=self._number_dimensions) * (self._upper_bound - self._lower_bound) + \
                self._lower_bound
-
-    def generate_velocity_random(self):
-        velocity = []
-        #Randomly initialize the position using an uniform distribution between the lower and upper bound
-        for i in range(self._number_dimensions):
-            random_dimension_value = self._random.random_sample() * (self._upper_bound[i] - self._lower_bound[i]) + \
-                           self._lower_bound[i]
-            velocity.append(random_dimension_value)
-        return np.array(velocity)
 
     #BE CAREFUL WITH BEST CREATURE TO SEND A HARD COPY SO THAT IF IT UPDATE THE POSITION IT DOESN'T CHANGE THE BEST CREATURE POSITION
     def update_velocity(self, inertia_factor, self_confidence, swarm_confidence, creature_adventure_sense,
