@@ -20,10 +20,10 @@ class Swarm(object):
 
         return list_creatures
 
-    def add_creature_to_swarm(self, position, fitness_function):
+    def add_creature_to_swarm(self, position, fitness):
         position = np.array(position)
         self._swarm_of_creatures.append(Creature(self._ID, self._number_of_dimensions, self._lower_bound,
-                                       self._upper_bound, self._random, fitness_function, position=position))
+                                       self._upper_bound, self._random, fitness=fitness, position=position))
         self._ID += 1
         self._swarm_size += 1
 

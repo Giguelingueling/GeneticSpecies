@@ -5,7 +5,7 @@ import FitnessFunction
 Represent a creature. That is a Chromosome (input of the function) and a fitness (output of the function)
 '''
 class Creature(object):
-    def __init__(self, ID, number_of_dimensions, lower_bound, upper_bound, random, fitness_function, position=None):
+    def __init__(self, ID, number_of_dimensions, lower_bound, upper_bound, random, fitness=None, position=None):
         self._random = random
 
         self._ID = ID
@@ -23,13 +23,15 @@ class Creature(object):
         else:
             self._position = position
 
-        #For the fitness, lower is better.
-        self.fitness = FitnessFunction.calculate_fitness(fitness_function, self._position,
-                                                         self._number_dimensions)
+        if fitness is None:
+            #For the fitness, lower is better.
+            self._fitness = float('Inf')
+        else:
+            self._fitness = fitness
 
         #Add the variable useful for the creature memory
         self._memory_best_position = self._position
-        self._memory_best_fitness = self.fitness
+        self._memory_best_fitness = self._fitness
 
     #Generate the position or the velocity of the creature randomly
     def generate_vector_random(self):
@@ -68,6 +70,10 @@ class Creature(object):
     def reset_memory(self):
         self._memory_best_position = self._position
 
+    def update_fitness(self, fitness_function):
+        if(self._fitness == float('Inf')):
+            self._fitness = FitnessFunction.calculate_fitness(fitness_function, self._position, self._number_dimensions)
+
     def update_creature(self, fitness_function, inertia_factor, self_confidence, swarm_confidence,
                         creature_adventure_sense, best_creature_position):
         #Update velocity and position
@@ -76,7 +82,7 @@ class Creature(object):
         self.update_position()
 
         #Calculate the fitness
-        self._fitness = FitnessFunction.calculate_fitness(fitness_function, self._position, self._number_dimensions)
+        self.update_fitness(fitness_function)
 
         #If the new fitness is better than its best fitness within memory, update the creature memory
         if(self._fitness < self._memory_best_fitness):
