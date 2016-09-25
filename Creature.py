@@ -28,13 +28,8 @@ class Creature(object):
 
     #Generate the position of the creature randomly
     def generate_position_random(self):
-        position = []
-        #Randomly initialize the position using an uniform distribution between the lower and upper bound
-        for i in range(self._number_dimensions):
-            random_dimension_value = self._random.random_sample() * (self._upper_bound[i] - self._lower_bound[i]) + \
-                           self._lower_bound[i]
-            position.append(random_dimension_value)
-        return np.array(position)
+        return self._random.uniform(size=self._number_dimensions) * (self._upper_bound - self._lower_bound) + \
+               self._lower_bound
 
     def generate_velocity_random(self):
         velocity = []

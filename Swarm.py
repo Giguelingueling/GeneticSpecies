@@ -37,13 +37,7 @@ class Swarm(object):
     def update_swarm(self, fitness_function, inertia_factor, self_confidence, swarm_confidence,
                      creature_adventure_sense):
         #Before updating, we have to find the best creature of the current swarm iteration.
-        best_creature = self._swarm_of_creatures[0]
-        best_fitness = best_creature.get_fitness()
-        for creature in self._swarm_of_creatures[1::]:
-            creature_fitness = creature.get_fitess()
-            if(creature.get_fitess() < best_fitness):
-                best_creature = creature
-                best_fitness = creature_fitness
+        best_creature = self.get_best_creature()
 
         #Now that we have the best creature of the current generation, we're ready to call update on all the creatures
         for creature in self._swarm_of_creatures:
