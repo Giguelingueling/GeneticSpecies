@@ -16,7 +16,11 @@ class SwarmProcess(object):
         self._number_of_dimensions = number_of_dimensions
         self._lower_bound = lower_bound
         self._upper_bound = upper_bound
-        self._swarm_size = swarm_size
+
+        # We remove two for the swarm size.
+        # Because the first step of the algorithm is to add two creatures which cover the space in the most efficient manner.
+        self._swarm_size = swarm_size-2
+
         self._fitness_function = fitness_function
 
         #Create the main swarm responsible to explore the function

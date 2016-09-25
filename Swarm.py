@@ -25,6 +25,7 @@ class Swarm(object):
         self._swarm_of_creatures.append(Creature(self._ID, self._number_of_dimensions, self._lower_bound,
                                        self._upper_bound, self._random, fitness_function, position=position))
         self._ID += 1
+        self._swarm_size += 1
 
     def get_list_position(self):
         list_position = []
