@@ -2,7 +2,7 @@ import math
 import numpy as np
 
 def calculate_fitness(fun_fitness, *args):
-    fun_fitness(*args)
+    return fun_fitness(*args)
 
 #Between -500 and 500
 def schwefel_function(array_genes, number_of_genes):

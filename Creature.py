@@ -72,7 +72,7 @@ class Creature(object):
 
     def update_fitness(self, fitness_function):
         if(self._fitness == float('Inf')):
-            self._fitness = FitnessFunction.calculate_fitness(fitness_function, self._position, self._number_dimensions)
+            self._fitness = fitness_function.get_fitness(self._position)
 
     def update_creature(self, fitness_function, inertia_factor, self_confidence, swarm_confidence,
                         creature_adventure_sense, best_creature_position):
