@@ -44,12 +44,15 @@ class Swarm(object):
                 best_creature = creature
         return best_creature
 
-    def run_swarm_optimization(self, number_of_max_iterations, function_to_optimize):
+    def run_swarm_optimization(self, number_of_max_iterations, function_to_optimize, inertia_factor, self_confidence,
+                               swarm_confidence, sense_of_adventure):
         for i in range(number_of_max_iterations):
-            a=1
+            self.update_swarm(fitness_function=function_to_optimize, inertia_factor=inertia_factor,
+                              self_confidence=self_confidence, swarm_confidence=swarm_confidence,
+                              sense_of_adventure=sense_of_adventure)
 
     def update_swarm(self, fitness_function, inertia_factor, self_confidence, swarm_confidence,
-                     creature_adventure_sense):
+                     sense_of_adventure):
         #Before updating, we have to find the best creature of the current swarm iteration.
         best_creature = self.get_best_creature()
 
@@ -57,5 +60,5 @@ class Swarm(object):
         for creature in self._swarm_of_creatures:
             creature.update_creature(fitness_function=fitness_function, inertia_factor=inertia_factor,
                                      self_confidence=self_confidence, swarm_confidence=swarm_confidence,
-                                     creature_adventure_sense=creature_adventure_sense,
+                                     creature_adventure_sense=sense_of_adventure,
                                      best_creature_position=best_creature.get_position())

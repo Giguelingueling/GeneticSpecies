@@ -13,13 +13,20 @@ class SwarmProcess(object):
     number_of_generation correspond to the number of the main loop the algorithm will do
     '''
     def __init__(self, lower_bound, upper_bound, number_of_dimensions, number_of_real_evaluation, swarm_size,
-                 number_of_generation_swarm, fitness_function):
+                 number_of_generation_swarm, fitness_function, inertia_factor=0.5, self_confidence=1.5,
+                 swarm_confidence=1.5, sense_of_adventure=1.5):
         self._number_of_real_evaluation = number_of_real_evaluation
         self._random = np.random.RandomState()
         self._number_of_dimensions = number_of_dimensions
         self._lower_bound = lower_bound
         self._upper_bound = upper_bound
         self._number_of_generation_swarm = number_of_generation_swarm
+
+        #Swarm hyper-parameters
+        self._inertia_factor = inertia_factor
+        self._self_confidence = self_confidence
+        self._swarm_confidence = swarm_confidence
+        self._sense_of_adventure = sense_of_adventure
 
         # We remove two for the swarm size.
         # Because the first step of the algorithm is to add two creatures which cover the space
@@ -92,7 +99,8 @@ class SwarmProcess(object):
         # We want to get EI
         self._regressor.set_EI_bool(True)
         # run swarm optimization with number of iterations.
-        self._swarm.run_swarm_optimization(self._number_of_generation_swarm, self._regressor)
+        self._swarm.run_swarm_optimization(self._number_of_generation_swarm, self._regressor, self._inertia_factor,
+                                           self._self_confidence, self._swarm_confidence, self._sense_of_adventure)
         # Finish exploration by updating the regressor
         self._regressor.train(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
 

@@ -5,7 +5,8 @@ import FitnessFunction
 Represent a creature. That is a Chromosome (input of the function) and a fitness (output of the function)
 '''
 class Creature(object):
-    def __init__(self, ID, number_of_dimensions, lower_bound, upper_bound, random, fitness=None, position=None):
+    def __init__(self, ID, number_of_dimensions, lower_bound, upper_bound, random, fitness=None, position=None,
+                 creature_is_adventurous=False):
         self._random = random
 
         self._ID = ID
@@ -33,24 +34,32 @@ class Creature(object):
         self._memory_best_position = self._position
         self._memory_best_fitness = self._fitness
 
+        #Set if the creature has a sense of adventure or just want to reach the global minimum
+        self._creature_is_adventurous = creature_is_adventurous
+
     #Generate the position or the velocity of the creature randomly
     def generate_vector_random(self):
         return self._random.uniform(size=self._number_dimensions) * (self._upper_bound - self._lower_bound) + \
                self._lower_bound
 
     #BE CAREFUL WITH BEST CREATURE TO SEND A HARD COPY SO THAT IF IT UPDATE THE POSITION IT DOESN'T CHANGE THE BEST CREATURE POSITION
-    def update_velocity(self, inertia_factor, self_confidence, swarm_confidence, creature_adventure_sense,
+    def update_velocity(self, inertia_factor, self_confidence, swarm_confidence, sense_of_adventure,
                         best_creature_position):
         current_motion = inertia_factor*self._velocity
         creature_memory = self_confidence*self._random.rand(self._number_dimensions)*\
                           (self._memory_best_position-self._position)
-        swarm_influence = swarm_confidence*self._random.rand(self._number_dimensions)*\
-                          (best_creature_position-self._position)
 
-        #TODO find the formula to express the creature curiosity
-        #creature_curiosity = creature_adventure_sense*self._random.rand(self._number_dimensions)*
-
-        self._velocity = current_motion+creature_memory+swarm_influence
+        if self._creature_is_adventurous:
+            # TODO find the formula to express the creature curiosity
+            # creature_curiosity = creature_adventure_sense*self._random.rand(self._number_dimensions)*
+            #Meanwhile
+            creature_curiosity = swarm_confidence * self._random.rand(self._number_dimensions) * \
+                              (best_creature_position - self._position)
+            self._velocity = current_motion + creature_memory + creature_curiosity
+        else:
+            swarm_influence = swarm_confidence*self._random.rand(self._number_dimensions)*\
+                              (best_creature_position-self._position)
+            self._velocity = current_motion + creature_memory + swarm_influence
 
     def update_position(self):
         self._position = self._position+self._velocity
