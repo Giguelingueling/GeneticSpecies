@@ -1,11 +1,7 @@
-import numpy as np
-import FitnessFunction
-
-'''
-Represent a creature. That is a Chromosome (input of the function) and a fitness (output of the function)
-'''
+#  Represent a creature. That is a Chromosome (input of the function) and a fitness (output of the function)
 class Creature(object):
-    def __init__(self, id_creature, number_of_dimensions, lower_bound, upper_bound, random, fitness=None, position=None):
+    def __init__(self, id_creature, number_of_dimensions, lower_bound, upper_bound, random, fitness=None,
+                 position=None):
         self._random = random
 
         self._id_creature = id_creature
@@ -43,13 +39,13 @@ class Creature(object):
     def update_velocity(self, inertia_factor, self_confidence, swarm_confidence, sense_of_adventure,
                         best_creature_position, allow_curiosity):
         current_motion = inertia_factor*self._velocity
-        creature_memory = self_confidence*self._random.rand(self._number_dimensions) * \
-                          (self._memory_best_position-self._position)
+        creature_memory = self_confidence*self._random.rand(self._number_dimensions) * (self._memory_best_position -
+                                                                                        self._position)
 
         if allow_curiosity:
             # TODO find the formula to express the creature curiosity
             # creature_curiosity = creature_adventure_sense*self._random.rand(self._number_dimensions)*
-            #Meanwhile
+            # Meanwhile
             creature_curiosity = swarm_confidence * self._random.rand(self._number_dimensions) * \
                               (best_creature_position - self._position)
             self._velocity = current_motion + creature_memory + creature_curiosity
@@ -62,8 +58,27 @@ class Creature(object):
         new_position = self._position+self._velocity
 
         # Verify if the new position is out of bound. If it's the case put the creature back in the function research
-        # domain and put inertie to 0.0
+        # domain by using the reflect method (act as if the boundary are mirrors and the creature photons
+        # and put inertia to 0.0 on this dimension. We use this method because it was the one shown to perform the best
+        # on average by Helwig et al. (2013)
         # TODO handle position out of bound
+        for i in range(self._number_dimensions):
+            # Make sure we don't go out of bound
+            if new_position[i] > self._upper_bound[i]:
+                new_position[i] = self._upper_bound[i] - (new_position[i]-self._upper_bound[i])
+                self._velocity[i] = 0.0
+                # Verify the edge case (extremely unlikely) that the creature goes over the other bound
+                # If that's the case. Clamp the creature back to the domain
+                if new_position[i] < self._lower_bound[i]:
+                    new_position[i] = self._lower_bound[i]
+            elif new_position[i] < self._lower_bound[i]:
+                new_position[i] = self._lower_bound[i] + (self._lower_bound[i] - new_position[i])
+                self._velocity[i] = 0.0
+                # Verify the edge case (extremely unlikely) that the creature goes over the other bound
+                # If that's the case. Clamp the creature back to the domain
+                if new_position[i] > self._upper_bound[i]:
+                    new_position[i] = self._upper_bound[i]
+        self._position = new_position
 
     def get_id_creature(self):
         return self._id_creature
@@ -99,8 +114,9 @@ class Creature(object):
         # Calculate the fitness
         self.update_fitness(fitness_function=fitness_function, best_ever_creature_fitness=best_ever_creature_fitness)
 
-        # If the new fitness is better than its best fitness within memory, update the creature memory
-        if self._fitness < self._memory_best_fitness:
+        # If the new fitness is better or equal than its best fitness within memory, update the creature memory
+        # The equal is used because on discreet function or with function with plateau, the creature would stop moving
+        if self._fitness <= self._memory_best_fitness:
             self._memory_best_fitness = self._fitness
             self._memory_best_position = self._position
 

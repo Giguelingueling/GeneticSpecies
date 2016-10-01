@@ -48,7 +48,7 @@ class SwarmProcess(object):
     def run_swarm_process(self):
         # First we find the combination of creature that cover the space the more thoroughly.
         # To achieve that, we use KMEANS with k=2 on the list of creature position.
-        kmeans = KMeans(n_clusters=20)
+        kmeans = KMeans(n_clusters=100)
 
         swarm_positions = self._swarm.get_list_position()  # Get the list of point in the space for KMeans
         kmeans.fit(swarm_positions)  # Train KMeans

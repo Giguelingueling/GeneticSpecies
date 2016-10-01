@@ -76,7 +76,7 @@ class Swarm(object):
                      sense_of_adventure):
         # Before updating, we have to find the best creature of the current swarm iteration.
         current_best_creature = self.get_best_creature()
-        print current_best_creature.get_fitness()
+        print current_best_creature.get_fitness(), "   position:  ", current_best_creature.get_position()
 
         best_ever_fitness = self.get_best_ever_fitness()
         # Now that we have the best creature of the current generation, we're ready to call update on all the creatures
