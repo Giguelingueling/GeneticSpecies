@@ -35,10 +35,11 @@ class SwarmProcess(object):
 
         self._fitness_function = fitness_function
 
+        self._regressor = FunctionEstimator(get_EI=True)
+
         # Create the main swarm responsible to explore the function
         self._swarm = Swarm(swarm_size=self._swarm_size, number_of_dimensions=self._number_of_dimensions,
-                            lower_bound=self._lower_bound, upper_bound=self._upper_bound, random=self._random,
-                            fitness_function=self._fitness_function)
+                            lower_bound=self._lower_bound, upper_bound=self._upper_bound, random=self._random)
 
         self._list_real_evaluation_position = []
         self._list_real_evaluation_fitness = []
@@ -47,12 +48,12 @@ class SwarmProcess(object):
     def run_swarm_process(self):
         # First we find the combination of creature that cover the space the more thoroughly.
         # To achieve that, we use KMEANS with k=2 on the list of creature position.
-        kmeans = KMeans(n_clusters=2)
+        kmeans = KMeans(n_clusters=20)
 
         swarm_positions = self._swarm.get_list_position()  # Get the list of point in the space for KMeans
         kmeans.fit(swarm_positions)  # Train KMeans
         centers = kmeans.cluster_centers_  # Get the centers
-        print "Centers: ",centers
+        print "Centers: ", centers
 
         # Add two new creatures with their position corresponding to the centers of kmeans.
         creature0_position = centers[0]
@@ -75,7 +76,6 @@ class SwarmProcess(object):
         self._list_real_evaluation_fitness.append(creature1_fitness)
 
         # Train the regressor
-        self._regressor = FunctionEstimator(get_EI=True)
         self._regressor.train(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
 
         # From here, we alternate between exploration and exploitation randomly based on an heuristic except for the
@@ -98,18 +98,26 @@ class SwarmProcess(object):
         print "EXPLORATION"
         # We want to get EI
         self._regressor.set_EI_bool(True)
+        # We want to get the curiosity
+        self._swarm.set_curiosity(True)
         # run swarm optimization with number of iterations.
         self._swarm.run_swarm_optimization(self._number_of_generation_swarm, self._regressor, self._inertia_factor,
                                            self._self_confidence, self._swarm_confidence, self._sense_of_adventure)
         # Finish exploration by updating the regressor
-        self._regressor.train(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
+        self._regressor.update_regressor(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
+
+        #Reset swarm fitness
+        self._swarm.reset_swarm()
 
     def exploitation(self):
         print "EXPLOITATION"
         # Finish exploration by updating the regressor
         # We don't want to get EI
         self._regressor.set_EI_bool(False)
-        self._regressor.train(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
+        #We don't want to allow curiosity
+        self._swarm.set_curiosity(False)
+
+        self._regressor.update_regressor(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
 
 lower_bound = np.array([-500.0, -500.0])
 upper_bound = np.array([500.0, 500.0])

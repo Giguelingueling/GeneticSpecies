@@ -1,12 +1,13 @@
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern  # As suggested by Larochelle et al.
+from scipy.stats import norm
 import numpy as np
 import math
 
 class FunctionEstimator(object):
 
     def __init__(self, get_EI=False):
-        self._regressor = GaussianProcessRegressor(kernel=Matern(nu=2.5))
+        self._regressor = GaussianProcessRegressor(kernel=Matern(nu=2.5), n_restarts_optimizer=4)
         self._get_EI = get_EI
 
     def train(self, X, y):
@@ -44,15 +45,15 @@ class FunctionEstimator(object):
     def get_expected_improvement(self, position, best_fitness=0.0):
         #TODO write this function to get the EI
         prediction, std = self.get_estimation_fitness_value(position)
-        comparaison_predict_vs_best = (prediction-best_fitness)
-        if(comparaison_predict_vs_best < 0):
-            return comparaison_predict_vs_best/std
+        #expected_improvement = norm.cdf((best_fitness-prediction)/std)
+        if best_fitness-prediction < 0:
+            return (best_fitness - prediction) / std
         else:
-            return comparaison_predict_vs_best*std
+            return (best_fitness - prediction) * std
 
-    def update_regressor(self, all_creature_data):
+    def update_regressor(self, X, y):
         print "UPDATING REGRESSOR"
         self._regressor.theta0 = self._regressor.kernel_.theta  # Given correlation parameter = MLE
 
-        print len(all_creature_data)
-        self.train_regressor(all_creature_data)
+        print len(y)
+        self.train(X, y)
