@@ -119,7 +119,7 @@ class Creature(object):
         return self._memory_best_position
 
     def update_fitness(self, fitness_function, best_real_function_value):
-        self._fitness = fitness_function.get_fitness(self._position, best_real_function_value)
+        self._fitness, std = fitness_function.get_fitness(self._position, best_real_function_value)
         # If the new fitness is better or equal than its best fitness within memory, update the creature memory
         # The equal is used because on discreet function or with function with plateau, the creature would stop moving
         if self._memory_best_fitness > self._fitness:

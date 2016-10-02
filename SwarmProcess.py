@@ -146,8 +146,8 @@ class SwarmProcess(object):
         self._regressor.update_regressor(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
         return 0.0
 
-lower_bound = np.array([-500.0, -500.0])
-upper_bound = np.array([500.0, 500.0])
+lower_bound = np.array([-5.0, 10.0])
+upper_bound = np.array([0.0, 15.0])
 number_of_dimensions = 2
 number_of_real_evaluation = 100
 swarm_size = 100
@@ -155,5 +155,6 @@ number_of_generation_swarm = 100
 swarmProcess = SwarmProcess(lower_bound=lower_bound, upper_bound=upper_bound, number_of_dimensions=number_of_dimensions,
                             number_of_real_evaluation=number_of_real_evaluation, swarm_size=swarm_size,
                             number_of_generation_swarm=number_of_generation_swarm,
-                            fitness_function=FitnessFunction.schwefel_function)
+                            fitness_function=FitnessFunction.branin, inertia_factor=0.5, self_confidence=1.5,
+                            swarm_confidence=1.5, sense_of_adventure=1.5)
 swarmProcess.run_swarm_process()

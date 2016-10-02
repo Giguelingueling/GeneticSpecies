@@ -18,6 +18,7 @@ class FunctionEstimator(object):
             try:
                 if number_of_try == 0:
                     number_of_try += 1
+                    self._regressor = GaussianProcessRegressor(kernel=Matern(nu=2.5), n_restarts_optimizer=4)
                     self._regressor.fit(np.array(X), np.array(y))
                 else:
                     self._regressor = GaussianProcessRegressor(kernel=Matern(nu=2.5),
@@ -43,19 +44,18 @@ class FunctionEstimator(object):
         return prediction[0], std[0]
 
     def get_expected_improvement(self, position, best_fitness=0.0):
-        #TODO write this function to get the EI
         prediction, std = self.get_estimation_fitness_value(position)
-        if std < 0.000001:
-            gamma = 0.0
+        if std == 0.0:
+            expected_improvement = 1.0
         else:
             gamma = (best_fitness-prediction)/std
-        expected_improvement = std * gamma * norm.cdf(gamma)
-        expected_improvement *= -1  # We multiply by -1 to have a minimisation problem
-        return expected_improvement
+            expected_improvement = std * gamma * (norm.cdf(gamma) + 1)
+            expected_improvement *= -1  # We multiply by -1 to have a minimisation problem
+        return expected_improvement, std
 
     def update_regressor(self, X, y):
         print "UPDATING REGRESSOR"
-        self._regressor.theta0 = self._regressor.kernel_.theta  # Given correlation parameter = MLE
+        # self._regressor.theta0 = self._regressor.kernel_.theta  # Given correlation parameter = MLE
 
         print len(y)
         self.train(X, y)
