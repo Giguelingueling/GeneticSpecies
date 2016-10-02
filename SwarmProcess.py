@@ -48,7 +48,7 @@ class SwarmProcess(object):
     def run_swarm_process(self):
         # First we find the combination of creature that cover the space the more thoroughly.
         # To achieve that, we use KMEANS with k=2 on the list of creature position.
-        kmeans = KMeans(n_clusters=100)
+        kmeans = KMeans(n_clusters=2)
 
         swarm_positions = self._swarm.get_list_position()  # Get the list of point in the space for KMeans
         kmeans.fit(swarm_positions)  # Train KMeans
@@ -66,8 +66,8 @@ class SwarmProcess(object):
                                                               self._number_of_dimensions)
         self._number_of_real_evaluation -= 1  # Did a real evaluation
 
-        self._swarm.add_creature_to_swarm(creature0_position, creature0_fitness)
-        self._swarm.add_creature_to_swarm(creature1_position, creature1_fitness)
+        self._swarm.add_creature_to_swarm(position=creature0_position)
+        self._swarm.add_creature_to_swarm(position=creature1_position)
 
         # Add the creatures position and fitness to the list of position and fitness evaluated
         self._list_real_evaluation_position.append(creature0_position)
@@ -89,10 +89,30 @@ class SwarmProcess(object):
         for generation in range(self._number_of_real_evaluation):
             # Decide if we explore or exploite.
             exploitation_threshold = max(0.2, 1/math.sqrt((generation+2)/2))
+            exploitation_threshold = 5.0
             if self._random.rand() < exploitation_threshold:
-                self.exploration()
+                best_creature_ever = self.exploration()
+
+                # TODO once the exploitation algorithm is finish. Remove the if/else and move this block after
+                # We are almost done with this generation, get the real value of the point of interest found
+                new_point_to_add_fitness = FitnessFunction.calculate_fitness(self._fitness_function,
+                                                                             best_creature_ever.get_position(),
+                                                                             self._number_of_dimensions)
+                # Finish the generation by adding the new creature to the list and updating the regressor
+                self._list_real_evaluation_position.append(best_creature_ever.get_position())
+                self._list_real_evaluation_fitness.append(new_point_to_add_fitness)
+                self._regressor.update_regressor(self._list_real_evaluation_position,
+                                                 self._list_real_evaluation_fitness)
+                print "Smallest point found: ", new_point_to_add_fitness, "Fitness found by the PSO:", \
+                    best_creature_ever.get_fitness()," At position: ", best_creature_ever.get_position()
+                # Reset swarm fitness
+                self._swarm.reset_swarm()
             else:
-                self.exploitation()
+                best_creature_ever = self.exploitation()
+
+        index = self._list_real_evaluation_fitness.index(min(self._list_real_evaluation_fitness))
+        print "Smallest point found: ", self._list_real_evaluation_fitness[index], " At position: ", \
+            self._list_real_evaluation_position[index]
 
     def exploration(self):
         print "EXPLORATION"
@@ -100,14 +120,20 @@ class SwarmProcess(object):
         self._regressor.set_EI_bool(True)
         # We want to get the curiosity
         self._swarm.set_curiosity(True)
-        # run swarm optimization with number of iterations.
-        self._swarm.run_swarm_optimization(self._number_of_generation_swarm, self._regressor, self._inertia_factor,
-                                           self._self_confidence, self._swarm_confidence, self._sense_of_adventure)
-        # Finish exploration by updating the regressor
-        self._regressor.update_regressor(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
+        # Make sure that every creature has been evaluated
+        best_fitness = min(self._list_real_evaluation_fitness)
+        print "BEST CURRENT FITNESS", best_fitness
+        self._swarm.evaluate_fitness_swarm(fitness_function=self._regressor, best_real_function_value=best_fitness)
 
-        #Reset swarm fitness
-        self._swarm.reset_swarm()
+        # run swarm optimization with number of iterations.
+        best_creature_ever = self._swarm.run_swarm_optimization(max_iterations=self._number_of_generation_swarm,
+                                                                function_to_optimize=self._regressor,
+                                                                inertia_factor=self._inertia_factor,
+                                                                self_confidence=self._self_confidence,
+                                                                swarm_confidence=self._swarm_confidence,
+                                                                sense_of_adventure=self._sense_of_adventure,
+                                                                best_real_function_value=best_fitness)
+        return best_creature_ever
 
     def exploitation(self):
         print "EXPLOITATION"
@@ -118,12 +144,13 @@ class SwarmProcess(object):
         self._swarm.set_curiosity(False)
 
         self._regressor.update_regressor(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
+        return 0.0
 
 lower_bound = np.array([-500.0, -500.0])
 upper_bound = np.array([500.0, 500.0])
 number_of_dimensions = 2
-number_of_real_evaluation = 50
-swarm_size = 1000
+number_of_real_evaluation = 100
+swarm_size = 100
 number_of_generation_swarm = 100
 swarmProcess = SwarmProcess(lower_bound=lower_bound, upper_bound=upper_bound, number_of_dimensions=number_of_dimensions,
                             number_of_real_evaluation=number_of_real_evaluation, swarm_size=swarm_size,

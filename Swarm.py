@@ -27,7 +27,7 @@ class Swarm(object):
 
         return list_creatures
 
-    def add_creature_to_swarm(self, position, fitness):
+    def add_creature_to_swarm(self, position, fitness=float('Inf')):
         position = np.array(position)
         self._swarm_of_creatures.append(Creature(self._id_creature, self._number_of_dimensions, self._lower_bound,
                                         self._upper_bound, self._random, fitness=fitness, position=position))
@@ -36,8 +36,16 @@ class Swarm(object):
 
     def reset_swarm(self):
         for creature in self._swarm_of_creatures:
+            # Reset the fitness of the creature
             creature.reset_fitness()
+            # Put the creature in his "house" (best position he found so far)
+            creature.set_position(position=creature.get_best_memory_position())
+            # Reset its memory (i.e. his best position will be his current position and best fitness current fitness).
             creature.reset_memory()
+            # Give the creature a random velocity since if the previous best position found by the swarm could be at
+            # The edge of the space domain and the normal velocity update is thus highly likely to yield 0
+            # in all dimensions.
+            creature.set_random_velocity()
 
     def get_list_position(self):
         list_position = []
@@ -56,29 +64,50 @@ class Swarm(object):
                 best_creature = creature
         return best_creature
 
-    # Get the lowest fitness ever found so far
-    def get_best_ever_fitness(self):
+    def get_best_ever_creature(self):
         best_ever_fitness = float('Inf')
+        best_creature_ever_position = self._swarm_of_creatures[0].get_position()
+        id_best_creature_ever = 0
         for creature in self._swarm_of_creatures:
             best_creature_fitness = creature.get_best_memory_fitness()
-            if best_ever_fitness > best_creature_fitness:
+            if best_creature_fitness < best_ever_fitness:
                 best_ever_fitness = best_creature_fitness
-        return best_ever_fitness
+                best_creature_ever_position = creature.get_best_memory_position()
+                id_best_creature_ever = creature.get_id_creature()
+        best_ever_creature = Creature(id_best_creature_ever, self._number_of_dimensions, self._lower_bound,
+                                      self._upper_bound, self._random, fitness=best_ever_fitness,
+                                      position=best_creature_ever_position)
+        return best_ever_creature
 
-    def run_swarm_optimization(self, number_of_max_iterations, function_to_optimize, inertia_factor, self_confidence,
-                               swarm_confidence, sense_of_adventure):
-        for i in range(number_of_max_iterations):
+    # Evaluate all creatures fitness
+    def evaluate_fitness_swarm(self, fitness_function, best_real_function_value):
+        for creature in self._swarm_of_creatures:
+            creature.update_fitness(fitness_function=fitness_function,
+                                    best_real_function_value=best_real_function_value)
+
+    # Get the lowest fitness ever found so far
+    def get_best_ever_fitness(self):
+        return self.get_best_ever_creature().get_fitness()
+
+    # Get the position of the best creature ever
+    def get_best_ever_position(self):
+        return self.get_best_ever_creature().get_position()
+
+    def run_swarm_optimization(self, max_iterations, function_to_optimize, inertia_factor, self_confidence,
+                               swarm_confidence, sense_of_adventure, best_real_function_value):
+        for i in range(max_iterations):
             self.update_swarm(fitness_function=function_to_optimize, inertia_factor=inertia_factor,
                               self_confidence=self_confidence, swarm_confidence=swarm_confidence,
-                              sense_of_adventure=sense_of_adventure)
+                              sense_of_adventure=sense_of_adventure, best_real_function_value=best_real_function_value)
+
+        #  At the end, return the best creature
+        return self.get_best_ever_creature()
 
     def update_swarm(self, fitness_function, inertia_factor, self_confidence, swarm_confidence,
-                     sense_of_adventure):
+                     sense_of_adventure, best_real_function_value):
         # Before updating, we have to find the best creature of the current swarm iteration.
         current_best_creature = self.get_best_creature()
-        print current_best_creature.get_fitness(), "   position:  ", current_best_creature.get_position()
 
-        best_ever_fitness = self.get_best_ever_fitness()
         # Now that we have the best creature of the current generation, we're ready to call update on all the creatures
         for creature in self._swarm_of_creatures:
             creature.update_creature(fitness_function=fitness_function, inertia_factor=inertia_factor,
@@ -86,4 +115,4 @@ class Swarm(object):
                                      creature_adventure_sense=sense_of_adventure,
                                      current_best_creature_position=current_best_creature.get_position(),
                                      allow_curiosity=self._allow_curiosity,
-                                     best_ever_creature_fitness=best_ever_fitness)
+                                     best_real_function_value=best_real_function_value)

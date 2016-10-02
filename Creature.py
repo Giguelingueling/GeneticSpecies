@@ -29,6 +29,9 @@ class Creature(object):
         self._memory_best_position = self._position
         self._memory_best_fitness = self._fitness
 
+        # Add a memory list that keep track of the last 10 positions of the creature.
+        self._memory_file = []
+
     # Generate the position or the velocity of the creature randomly
     def generate_vector_random(self):
         return self._random.uniform(size=self._number_dimensions) * (self._upper_bound - self._lower_bound) + \
@@ -78,6 +81,13 @@ class Creature(object):
                 # If that's the case. Clamp the creature back to the domain
                 if new_position[i] > self._upper_bound[i]:
                     new_position[i] = self._upper_bound[i]
+
+        # Before changing the position, store it in the memory file
+        if len(self._memory_file) >= 10:  # Make sure we only keep the last 10 positions.
+            self._memory_file.pop(0)
+        self._memory_file.append(self._position)
+
+        # Finally, update the position.
         self._position = new_position
 
     def get_id_creature(self):
@@ -96,15 +106,28 @@ class Creature(object):
     def get_position(self):
         return self._position
 
+    def set_position(self, position):
+        self._position = position
+
+    def set_random_velocity(self):
+        self._velocity = self.generate_vector_random()
+
     def get_best_memory_fitness(self):
         return self._memory_best_fitness
 
-    def update_fitness(self, fitness_function, best_ever_creature_fitness):
-        if self._fitness == float('Inf'):
-            self._fitness = fitness_function.get_fitness(self._position, best_ever_creature_fitness)
+    def get_best_memory_position(self):
+        return self._memory_best_position
+
+    def update_fitness(self, fitness_function, best_real_function_value):
+        self._fitness = fitness_function.get_fitness(self._position, best_real_function_value)
+        # If the new fitness is better or equal than its best fitness within memory, update the creature memory
+        # The equal is used because on discreet function or with function with plateau, the creature would stop moving
+        if self._memory_best_fitness > self._fitness:
+            self._memory_best_fitness = self._fitness
+            self._memory_best_position = self._position
 
     def update_creature(self, fitness_function, inertia_factor, self_confidence, swarm_confidence,
-                        creature_adventure_sense, current_best_creature_position, best_ever_creature_fitness,
+                        creature_adventure_sense, current_best_creature_position, best_real_function_value,
                         allow_curiosity=False):
         # Update velocity and position
         self.update_velocity(inertia_factor, self_confidence, swarm_confidence, creature_adventure_sense,
@@ -112,13 +135,7 @@ class Creature(object):
         self.update_position()
 
         # Calculate the fitness
-        self.update_fitness(fitness_function=fitness_function, best_ever_creature_fitness=best_ever_creature_fitness)
-
-        # If the new fitness is better or equal than its best fitness within memory, update the creature memory
-        # The equal is used because on discreet function or with function with plateau, the creature would stop moving
-        if self._fitness <= self._memory_best_fitness:
-            self._memory_best_fitness = self._fitness
-            self._memory_best_position = self._position
+        self.update_fitness(fitness_function=fitness_function, best_real_function_value=best_real_function_value)
 
         # The creature is now older
         self._age += 1

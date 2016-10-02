@@ -13,7 +13,7 @@ class FunctionEstimator(object):
     def train(self, X, y):
         no_error = False
         number_of_try = 0
-        while no_error == False:
+        while no_error is False:
             no_error = True
             try:
                 if number_of_try == 0:
@@ -29,7 +29,7 @@ class FunctionEstimator(object):
                 print Exception
                 no_error = False
 
-    def set_EI_bool(self,EI_bool):
+    def set_EI_bool(self, EI_bool):
         self._get_EI = EI_bool
 
     def get_fitness(self, position, best_fitness=0.0):
@@ -45,11 +45,13 @@ class FunctionEstimator(object):
     def get_expected_improvement(self, position, best_fitness=0.0):
         #TODO write this function to get the EI
         prediction, std = self.get_estimation_fitness_value(position)
-        #expected_improvement = norm.cdf((best_fitness-prediction)/std)
-        if best_fitness-prediction < 0:
-            return (best_fitness - prediction) / std
+        if std < 0.000001:
+            gamma = 0.0
         else:
-            return (best_fitness - prediction) * std
+            gamma = (best_fitness-prediction)/std
+        expected_improvement = std * gamma * norm.cdf(gamma)
+        expected_improvement *= -1  # We multiply by -1 to have a minimisation problem
+        return expected_improvement
 
     def update_regressor(self, X, y):
         print "UPDATING REGRESSOR"
