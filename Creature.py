@@ -109,6 +109,9 @@ class Creature(object):
     def set_position(self, position):
         self._position = position
 
+    def set_random_position(self):
+        self._position = self.generate_vector_random()
+
     def set_random_velocity(self):
         self._velocity = self.generate_vector_random()
 

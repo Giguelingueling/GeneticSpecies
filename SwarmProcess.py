@@ -5,6 +5,7 @@ from sklearn.cluster import KMeans
 import math
 from FunctionEstimator import FunctionEstimator
 
+
 class SwarmProcess(object):
     '''
     lower_bound and upper_bound refer to the min and max of the function to optimize respectively.
@@ -76,7 +77,7 @@ class SwarmProcess(object):
         self._list_real_evaluation_fitness.append(creature1_fitness)
 
         # Train the regressor
-        self._regressor.train(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
+        self._regressor.train_regressor(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
 
         # From here, we alternate between exploration and exploitation randomly based on an heuristic except for the
         # Very first pass where we for the algorithm to be in exploration mode for one more evaluation
@@ -101,8 +102,12 @@ class SwarmProcess(object):
                 # Finish the generation by adding the new creature to the list and updating the regressor
                 self._list_real_evaluation_position.append(best_creature_ever.get_position())
                 self._list_real_evaluation_fitness.append(new_point_to_add_fitness)
-                self._regressor.update_regressor(self._list_real_evaluation_position,
-                                                 self._list_real_evaluation_fitness)
+
+                choose_kernel = False
+                if len(self._list_real_evaluation_fitness) % 10 == 0:
+                    choose_kernel = True
+                self._regressor.train_regressor(self._list_real_evaluation_position,
+                                                self._list_real_evaluation_fitness, choose_kernel=choose_kernel)
                 print "Smallest point found: ", new_point_to_add_fitness, "Fitness found by the PSO:", \
                     best_creature_ever.get_fitness()," At position: ", best_creature_ever.get_position()
                 # Reset swarm fitness
@@ -117,7 +122,7 @@ class SwarmProcess(object):
     def exploration(self):
         print "EXPLORATION"
         # We want to get EI
-        self._regressor.set_EI_bool(True)
+        self._regressor.set_EI_bool(False)
         # We want to get the curiosity
         self._swarm.set_curiosity(True)
         # Make sure that every creature has been evaluated
@@ -146,8 +151,8 @@ class SwarmProcess(object):
         self._regressor.update_regressor(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
         return 0.0
 
-lower_bound = np.array([-5.0, 10.0])
-upper_bound = np.array([0.0, 15.0])
+lower_bound = np.array([-5.0, 0.0])
+upper_bound = np.array([10.0, 15.0])
 number_of_dimensions = 2
 number_of_real_evaluation = 100
 swarm_size = 100
