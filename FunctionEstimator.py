@@ -44,7 +44,6 @@ class FunctionEstimator(object):
         else:
             print "Optimizing Kernel..."
             prediction_Matern_five_two = []
-            prediction_rationalQuadratic = []
             prediction_AbsoluteExponentialKernel = []
             prediction_cubic = []
 

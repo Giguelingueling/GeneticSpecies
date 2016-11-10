@@ -137,7 +137,9 @@ class SwarmProcess(object):
                                                                 self_confidence=self._self_confidence,
                                                                 swarm_confidence=self._swarm_confidence,
                                                                 sense_of_adventure=self._sense_of_adventure,
-                                                                best_real_function_value=best_fitness)
+                                                                best_real_function_value=best_fitness,
+                                                                list_position_with_real_fitness=
+                                                                self._list_real_evaluation_position)
         return best_creature_ever
 
     def exploitation(self):
@@ -145,8 +147,17 @@ class SwarmProcess(object):
         # Finish exploration by updating the regressor
         # We don't want to get EI
         self._regressor.set_EI_bool(False)
-        #We don't want to allow curiosity
+        # We don't want to allow curiosity
         self._swarm.set_curiosity(False)
+
+        # Determine the number of parallel optimization to perform on already evaluated position
+        if len(self._list_real_evaluation_position) < 10:
+            # Number of parallel optimization = number of real evaluation.
+            a = 1
+        else:
+            # Create 10 parallel optimization with seed on the 10 best points found.
+            # Get the 3 best positions
+            a = 1
 
         self._regressor.update_regressor(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
         return 0.0

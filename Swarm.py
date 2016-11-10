@@ -95,19 +95,31 @@ class Swarm(object):
         return self.get_best_ever_creature().get_position()
 
     def run_swarm_optimization(self, max_iterations, function_to_optimize, inertia_factor, self_confidence,
-                               swarm_confidence, sense_of_adventure, best_real_function_value):
+                               swarm_confidence, sense_of_adventure, best_real_function_value,
+                               list_position_with_real_fitness):
         for i in range(max_iterations):
             self.update_swarm(fitness_function=function_to_optimize, inertia_factor=inertia_factor,
                               self_confidence=self_confidence, swarm_confidence=swarm_confidence,
-                              sense_of_adventure=sense_of_adventure, best_real_function_value=best_real_function_value)
+                              sense_of_adventure=sense_of_adventure, best_real_function_value=best_real_function_value,
+                              list_position_with_real_fitness=list_position_with_real_fitness)
 
         #  At the end, return the best creature
         return self.get_best_ever_creature()
 
     def update_swarm(self, fitness_function, inertia_factor, self_confidence, swarm_confidence,
-                     sense_of_adventure, best_real_function_value):
+                     sense_of_adventure, best_real_function_value, list_position_with_real_fitness):
         # Before updating, we have to find the best creature of the current swarm iteration.
         current_best_creature = self.get_best_creature()
+
+        position_to_get_away_from = None
+        # If curiosity is on, aggregate all the points that the creature might want to get away from.
+        list_point_to_get_away_from = []
+        if self._allow_curiosity:
+            for creature in self._swarm_of_creatures:
+                list_point_to_get_away_from.append(creature.get_best_memory_position())
+                list_point_to_get_away_from.append(creature.get_position())
+            list_point_to_get_away_from.extend(list_position_with_real_fitness)
+
 
         # Now that we have the best creature of the current generation, we're ready to call update on all the creatures
         for creature in self._swarm_of_creatures:
@@ -115,5 +127,6 @@ class Swarm(object):
                                      self_confidence=self_confidence, swarm_confidence=swarm_confidence,
                                      creature_adventure_sense=sense_of_adventure,
                                      current_best_creature_position=current_best_creature.get_position(),
+                                     best_real_function_value=best_real_function_value,
                                      allow_curiosity=self._allow_curiosity,
-                                     best_real_function_value=best_real_function_value)
+                                     position_to_get_away_from=list_point_to_get_away_from)
