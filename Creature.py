@@ -17,11 +17,14 @@ class Creature(object):
         for i in range(len(self._lower_bound)):
             bound_distance.append(self._upper_bound[i] - self._lower_bound[i])
         self._bound_distance = np.array(bound_distance)
+        self._half_bound_distance = self._bound_distance/2
 
         self._number_dimensions = number_of_dimensions
         self._velocity = self.generate_vector_random()
 
-        self._gaz = 1.0
+        self._max_gaz = 1.0
+        self._current_gaz = self._max_gaz
+
 
         if position is None:
             self._position = self.generate_vector_random()
@@ -75,20 +78,25 @@ class Creature(object):
         current_motion = inertia_factor*self._velocity
         creature_memory = self_confidence*self._random.rand(self._number_dimensions) * (self._memory_best_position -
                                                                                         self._position)
+        swarm_influence = swarm_confidence * self._random.rand(self._number_dimensions) * (best_creature_position
+                                                                                           - self._position)
         self._allow_curiosity = allow_curiosity
         if self._allow_curiosity:
             # TODO find the formula to express the creature curiosity
             creature_curiosity_direction = self.calculate_curiosity_direction(position_to_get_away_from)
             random_scalar = self._random.rand()
-            creature_curiosity = random_scalar*creature_curiosity_direction*(self._bound_distance/2.0)*self._gaz
-            self._gaz *= (1-random_scalar)
-            self._velocity = current_motion + creature_memory + creature_curiosity
+            creature_curiosity = sense_of_adventure * random_scalar * creature_curiosity_direction * (
+                self._bound_distance/2.0) * self._current_gaz
+            self._current_gaz *= (1-random_scalar)
+            self._velocity = current_motion + creature_memory + creature_curiosity + swarm_influence
         else:
-            swarm_influence = swarm_confidence*self._random.rand(self._number_dimensions) * \
-                              (best_creature_position-self._position)
             self._velocity = current_motion + creature_memory + swarm_influence
 
-    def update_position(self):
+        # Clamp velocity to half the maximum length in each dimension
+        self._velocity = np.where(np.abs(self._velocity) <= self._half_bound_distance, self._velocity,
+                                  self._half_bound_distance)
+
+    def update_position(self, best_creature_position):
         new_position = self._position+self._velocity
         # Verify if the new position is out of bound. If it's the case put the creature back in the function research
         # domain by using the reflect method (act as if the boundary are mirrors and the creature photons
@@ -120,9 +128,12 @@ class Creature(object):
         # Finally, update the position.
         self._position = new_position
         if self._allow_curiosity:
-            if self._gaz <= 0.004 and np.all(
-                            np.abs(self._position - self._memory_best_position) < 0.01 * self._bound_distance):
-                self._gaz = 1.0
+            if self._current_gaz <= 0.001*self._max_gaz:
+                if np.all(np.abs(self._position - self._memory_best_position) < 0.01 * self._bound_distance) or np.all(
+                   np.abs(best_creature_position - self._memory_best_position) < 0.01 * self._bound_distance):
+                    self._max_gaz *= 0.95
+                    self._current_gaz = self._max_gaz
+
 
     def get_id_creature(self):
         return self._id_creature
@@ -169,7 +180,7 @@ class Creature(object):
         # Update velocity and position
         self.update_velocity(inertia_factor, self_confidence, swarm_confidence, creature_adventure_sense,
                              current_best_creature_position, allow_curiosity, position_to_get_away_from)
-        self.update_position()
+        self.update_position(current_best_creature_position)
 
         # Calculate the fitness
         self.update_fitness(fitness_function=fitness_function, best_real_function_value=best_real_function_value)

@@ -52,8 +52,16 @@ class SwarmProcess(object):
         kmeans = KMeans(n_clusters=2)
 
         swarm_positions = self._swarm.get_list_position()  # Get the list of point in the space for KMeans
-        kmeans.fit(swarm_positions)  # Train KMeans
+        # Normalize the dimension of each point so the point chosen is irrelevant of the possible different unities
+        # of each dimensions
+        bound_distance = []
+        for i in range(len(self._lower_bound)):
+            bound_distance.append(self._upper_bound[i] - self._lower_bound[i])
+        bound_distance = np.array(bound_distance)
+        normalized_swarm_position = np.array(swarm_positions) / np.array(bound_distance)
+        kmeans.fit(normalized_swarm_position)  # Train KMeans
         centers = kmeans.cluster_centers_  # Get the centers
+        centers *= bound_distance  # Go back to the original dimension
         print "Centers: ", centers
 
         # Add two new creatures with their position corresponding to the centers of kmeans.
@@ -161,9 +169,15 @@ class SwarmProcess(object):
 
         self._regressor.update_regressor(self._list_real_evaluation_position, self._list_real_evaluation_fitness)
         return 0.0
-
-lower_bound = np.array([-500.0, -500.0])
-upper_bound = np.array([500.0, 500.0])
+# Schwefel
+# lower_bound = np.array([-500.0, -500.0])
+# upper_bound = np.array([500.0, 500.0])
+# Rastrigin
+# lower_bound = np.array([-5.12, -5.12])
+# upper_bound = np.array([5.12, 5.12])
+# Branin
+lower_bound = np.array([-5.0, 0.0])
+upper_bound = np.array([10.0, 15.0])
 number_of_dimensions = 2
 number_of_real_evaluation = 100
 swarm_size = 100
@@ -171,6 +185,6 @@ number_of_generation_swarm = 100
 swarmProcess = SwarmProcess(lower_bound=lower_bound, upper_bound=upper_bound, number_of_dimensions=number_of_dimensions,
                             number_of_real_evaluation=number_of_real_evaluation, swarm_size=swarm_size,
                             number_of_generation_swarm=number_of_generation_swarm,
-                            fitness_function=FitnessFunction.schwefel_function, inertia_factor=0.5, self_confidence=1.5,
+                            fitness_function=FitnessFunction.branin, inertia_factor=0.5, self_confidence=1.5,
                             swarm_confidence=1.5, sense_of_adventure=1.5)
 swarmProcess.run_swarm_process()
