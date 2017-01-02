@@ -57,8 +57,8 @@ def schwefel_func_p1_dot_2_unimodal(array_genes):
 
 
 # Between -10 and 10
-def rosenbrock(array_genes):
-    value = 0.0
-    for i in range(len(array_genes)-1):
-        value += 100.0*np.square((array_genes[i+1] - np.square(array_genes[i]))) + np.square(array_genes[i] - 1)
+def rosenbrock_(array_genes):
+    array_one = np.power(array_genes[:-1], 2) - array_genes[1:]
+    array_two = array_genes[:-1] - 1
+    value = 100 * np.dot(array_one, array_one) + np.dot(array_two, array_two)
     return value
