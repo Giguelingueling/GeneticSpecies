@@ -38,7 +38,7 @@ def rastrigin(array_genes):
 
 
 # Between -1.28 and 1.28
-def noise_function_(array_genes):
+def noise_function(array_genes):
     value = np.dot(np.arange(1, array_genes+1), np.power(array_genes, 4))
     return value + random.random()
 
@@ -51,7 +51,7 @@ def schwefel_func_p1_dot_2_unimodal(array_genes):
 
 
 # Between -10 and 10
-def rosenbrock_(array_genes):
+def rosenbrock(array_genes):
     array_one = np.square(array_genes[:-1]) - array_genes[1:]
     array_two = array_genes[:-1] - 1
     value = 100 * np.dot(array_one, array_one) + np.dot(array_two, array_two)
