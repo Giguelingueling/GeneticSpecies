@@ -69,9 +69,20 @@ def sphere_function(array_genes):
     value = np.dot(array_genes, array_genes)
     return value
 
+
 # Between -32 and 32
 def ackley_function(array_genes):
     ndim = len(array_genes)
     value = 20 - 20 * math.exp(-0.2 * math.sqrt(1.0/ndim * np.dot(array_genes, array_genes)))
     value += math.e - math.exp(1.0/ndim * np.sum(np.cos(2 * math.pi * array_genes)))
+    return value
+
+
+# Between -500 and 500
+def weierstrass_function(array_genes):
+    ndim = len(array_genes)
+    a_powers_array = np.power(0.5, np.arange(21))
+    b_powers_array = np.power(3.0, np.arange(21)).reshape(21, 1)
+    value = np.sum(a_powers_array * np.cos(2 * math.pi * np.dot(b_powers_array, array_genes.reshape(1, ndim) + 0.5).T))
+    value -= ndim * np.sum(a_powers_array * np.cos(math.pi * b_powers_array))
     return value
