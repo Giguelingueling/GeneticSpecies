@@ -62,3 +62,7 @@ def elliptic_function(array_genes):
     ndim = len(array_genes)
     value = np.dot(np.power(1000000, np.arange(ndim) / (ndim - 1)), np.square(array_genes))
     return value
+
+def sphere_function(array_genes):
+    value = np.dot(array_genes, array_genes)
+    return value
