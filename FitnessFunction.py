@@ -40,15 +40,13 @@ def schaffer_function(array_genes):
 # Between -5.12 and 5.12
 def rastrigin(array_genes):
     summation = np.dot(array_genes, array_genes) - 10 * np.sum(np.cos(2 * math.pi * array_genes))
-    return 10*len(array_genes)+summation
+    return summation + 10*len(array_genes)
 
 
 # Between -1.28 and 1.28
-def noise_function(array_genes):
-    value = 0.0
-    for i in array_genes:
-        value += i*math.pow(array_genes[i], 4) + random.random()
-    return value
+def noise_function_(array_genes):
+    value = np.dot(np.arange(1, array_genes+1), np.power(array_genes, 4))
+    return value + random.random()
 
 
 # Between -10 and 10
