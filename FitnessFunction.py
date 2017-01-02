@@ -9,7 +9,7 @@ def calculate_fitness(fun_fitness, *args):
 
 # Between -500 and 500
 def schwefel_function(array_genes):
-    # We use the Schwefel function slightly modified so it become a minimization problem
+    # We use the Schwefel function slightly modified so it becomes a minimization problem
     summation = np.sum(array_genes * np.sin(np.sqrt(np.abs(array_genes))))
     return (418.98288727243374296449474059045314788818359375*float(len(array_genes))) - summation
 
@@ -39,9 +39,7 @@ def schaffer_function(array_genes):
 
 # Between -5.12 and 5.12
 def rastrigin(array_genes):
-    summation = 0.0
-    for i in range(len(array_genes)):
-        summation += math.pow(array_genes[i], 2) - (10 * math.cos(2 * math.pi * array_genes[i]))
+    summation = np.dot(array_genes, array_genes) - 10 * np.sum(np.cos(2 * math.pi * array_genes))
     return 10*len(array_genes)+summation
 
 
