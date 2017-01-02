@@ -9,9 +9,10 @@ def calculate_fitness(fun_fitness, *args):
 
 # Between -500 and 500
 def schwefel_function(array_genes):
+    ndim = len(array_genes)
     # We use the Schwefel function slightly modified so it becomes a minimization problem
     value = np.sum(array_genes * np.sin(np.sqrt(np.abs(array_genes))))
-    return (418.98288727243374296449474059045314788818359375*float(len(array_genes))) - value
+    return (418.98288727243374296449474059045314788818359375*float(ndim)) - value
 
 
 # Between -5 and 10 for x
@@ -33,8 +34,9 @@ def schaffer_function(array_genes):
 
 # Between -5.12 and 5.12
 def rastrigin(array_genes):
+    ndim = len(array_genes)
     value = np.dot(array_genes, array_genes) - 10 * np.sum(np.cos(2 * math.pi * array_genes))
-    return value + 10*len(array_genes)
+    return value + 10*ndim
 
 
 # Between -1.28 and 1.28
@@ -85,4 +87,11 @@ def weierstrass_function(array_genes):
     b_powers_array = np.power(3.0, np.arange(21)).reshape(21, 1)
     value = np.sum(a_powers_array * np.cos(2 * math.pi * np.dot(b_powers_array, array_genes.reshape(1, ndim) + 0.5).T))
     value -= ndim * np.sum(a_powers_array * np.cos(math.pi * b_powers_array))
+    return value
+
+
+# Between -600 and 600
+def griewank_function(array_genes):
+    ndim = len(array_genes)
+    value = 1 + 1.0 / 4000 * np.dot(array_genes, array_genes) - np.prod(np.cos(array_genes / np.sqrt(1+np.arange(ndim))))
     return value
