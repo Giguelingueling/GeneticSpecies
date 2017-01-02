@@ -51,12 +51,8 @@ def noise_function_(array_genes):
 
 # Between -10 and 10
 def schwefel_func_p1_dot_2_unimodal(array_genes):
-    value = 0.0
-    for i in range(len(array_genes)):
-        value_to_be_squared = 0.0
-        for j in range(i):
-            value_to_be_squared += array_genes[j]
-        value += np.square(value_to_be_squared)
+    cumsum_array = np.cumsum(array_genes)
+    value = np.dot(cumsum_array, cumsum_array)
     return value
 
 
