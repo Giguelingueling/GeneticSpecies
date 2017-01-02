@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import random
 
 
 def calculate_fitness(fun_fitness, *args):
@@ -7,18 +8,15 @@ def calculate_fitness(fun_fitness, *args):
 
 
 # Between -500 and 500
-def schwefel_function(array_genes, number_of_genes):
+def schwefel_function(array_genes):
     # We use the Schwefel function slightly modified so it become a minimization problem
-    summation = 0.0
-    for i in range(number_of_genes):
-        summation += array_genes[i] * math.sin(math.sqrt(abs(array_genes[i])))
-
-    return (418.9829*number_of_genes) - summation
+    summation = np.sum(array_genes * np.sin(np.sqrt(np.abs(array_genes))))
+    return (418.98288727243374296449474059045314788818359375*float(len(array_genes))) - summation
 
 
 # Between -5 and 10 for x
 # Between 0 and 15 for y
-def branin(x, number_of_genes):
+def branin(x):
     x_0 = x[0]
     x_1 = x[1]
     y = np.square(x_1 - (5.1/(4.0*np.square(math.pi)))*np.square(x_0) + (5.0/math.pi)*x_0 - 6.0) + \
@@ -30,11 +28,9 @@ def branin(x, number_of_genes):
 
 
 # Between -100 and 100
-def schaffer_function(array_genes, number_of_genes):
-    # We use the Schaffer function slightly modified so it become a maximization problem
-    # The Maximal value of this function is 0
+def schaffer_function(array_genes):
     summation = 0.0
-    for i in range(number_of_genes-1):
+    for i in range(len(array_genes)-1):
         summation += math.pow(math.pow(array_genes[i], 2) + math.pow(array_genes[i + 1], 2), 0.25) * \
                      (math.pow(math.sin(50 * math.pow(math.pow(array_genes[i], 2) +
                                                       math.pow(array_genes[i + 1], 2), 0.10)), 2) + 1.0)
@@ -42,8 +38,35 @@ def schaffer_function(array_genes, number_of_genes):
 
 
 # Between -5.12 and 5.12
-def rastrigin(array_genes, number_of_genes):
+def rastrigin(array_genes):
     summation = 0.0
-    for i in range(number_of_genes):
+    for i in range(len(array_genes)):
         summation += math.pow(array_genes[i], 2) - (10 * math.cos(2 * math.pi * array_genes[i]))
-    return 10*number_of_genes+summation
+    return 10*len(array_genes)+summation
+
+
+# Between -1.28 and 1.28
+def noise_function(array_genes):
+    value = 0.0
+    for i in array_genes:
+        value += i*math.pow(array_genes[i], 4) + random.random()
+    return value
+
+
+# Between -10 and 10
+def schwefel_func_p1_dot_2_unimodal(array_genes):
+    value = 0.0
+    for i in range(len(array_genes)):
+        value_to_be_squared = 0.0
+        for j in range(i):
+            value_to_be_squared += array_genes[j]
+        value += np.square(value_to_be_squared)
+    return value
+
+
+# Between -10 and 10
+def rosenbrock(array_genes):
+    value = 0.0
+    for i in range(len(array_genes)-1):
+        value += 100.0*np.square((array_genes[i+1] - np.square(array_genes[i]))) + np.square(array_genes[i] - 1)
+    return value

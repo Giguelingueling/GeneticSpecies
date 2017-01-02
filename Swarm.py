@@ -39,8 +39,8 @@ class Swarm(object):
             # Reset the fitness of the creature
             creature.reset_fitness()
             # Put the creature in his "house" (best position he found so far)
-            #creature.set_position(position=creature.get_best_memory_position())
-            creature.set_random_position()
+            creature.set_position(position=creature.get_best_memory_position())
+            #creature.set_random_position()
             # Reset its memory (i.e. his best position will be his current position and best fitness current fitness).
             creature.reset_memory()
             # Give the creature a random velocity since if the previous best position found by the swarm could be at

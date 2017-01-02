@@ -102,7 +102,6 @@ class Creature(object):
         # domain by using the reflect method (act as if the boundary are mirrors and the creature photons
         # and put inertia to 0.0 on this dimension. We use this method because it was the one shown to perform the best
         # on average by Helwig et al. (2013)
-        # TODO handle position out of bound
         for i in range(self._number_dimensions):
             # Make sure we don't go out of bound
             if new_position[i] > self._upper_bound[i]:
@@ -128,10 +127,10 @@ class Creature(object):
         # Finally, update the position.
         self._position = new_position
         if self._allow_curiosity:
-            if self._current_gaz <= 0.001*self._max_gaz:
+            if self._current_gaz <= 0.00001*self._max_gaz:
                 if np.all(np.abs(self._position - self._memory_best_position) < 0.01 * self._bound_distance) or np.all(
                    np.abs(best_creature_position - self._memory_best_position) < 0.01 * self._bound_distance):
-                    self._max_gaz *= 0.95
+                    self._max_gaz *= 0.5
                     self._current_gaz = self._max_gaz
 
 

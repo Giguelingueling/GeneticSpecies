@@ -1,5 +1,5 @@
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import Matern, RBF
+from sklearn.gaussian_process.kernels import Matern, RBF, ConstantKernel as C
 from scipy.stats import norm
 import numpy as np
 from sklearn.model_selection import KFold
@@ -8,7 +8,9 @@ from sklearn.metrics import mean_squared_error
 class FunctionEstimator(object):
 
     def __init__(self, get_EI=False):
-        self._regressor = GaussianProcessRegressor(kernel=Matern(nu=2.5), n_restarts_optimizer=4)
+        self._kernel = Matern(nu=2.5)
+        #self._kernel = C(1.0, (1e-3, 1e3)) * RBF(10, (1e-2, 1e2))
+        self._regressor = GaussianProcessRegressor(kernel=self._kernel, n_restarts_optimizer=4)
         self._get_EI = get_EI
 
     def set_EI_bool(self, EI_bool):
