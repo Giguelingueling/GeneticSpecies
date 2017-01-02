@@ -56,3 +56,9 @@ def rosenbrock(array_genes):
     array_two = array_genes[:-1] - 1
     value = 100 * np.dot(array_one, array_one) + np.dot(array_two, array_two)
     return value
+
+# Between -100 and 100
+def elliptic_function(array_genes):
+    ndim = len(array_genes)
+    value = np.dot(np.power(1000000, np.arange(ndim) / (ndim - 1)), np.square(array_genes))
+    return value
