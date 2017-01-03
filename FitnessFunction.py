@@ -110,3 +110,63 @@ def generalized_penalized_function(array_genes):
     array[array_genes < -10] = 100 * np.power(-array[array < -10] - 10, 4)
     value += np.sum(array)
     return value
+
+
+# Between -500 and 500. Using CLPSO's version of this function.
+def schwefel_function_rotated(array_genes, rotation_matrix):
+    ndim = len(array_genes)
+    array_genes_rotated = np.dot(rotation_matrix, array_genes - 420.96) + 420.96
+    array = np.zeros(ndim)
+    less_indices = np.abs(array_genes_rotated) <= 500
+    more_indices = np.abs(array_genes_rotated) > 500
+    array[less_indices] = array_genes_rotated[less_indices] * np.sin(np.sqrt(np.abs(array_genes_rotated[less_indices])))
+    array[more_indices] = 0.001 * np.square(np.abs(array_genes_rotated[more_indices]) - 500)
+    value = np.sum(array)
+    return (418.98288727243374296449474059045314788818359375*float(ndim)) - value
+
+
+# Returns the rotation matrix of dimension ndim x ndim. Somewhat heavy computationally.
+def get_rotation_matrix(ndim):
+    matrix = np.eye(ndim)
+    matrix[:, 0] = 1
+    Q, _ = np.linalg.qr(matrix)
+    return Q
+
+
+# Example of how to use the relevant shifted/rotated functions
+def example(ndim):
+    # Generate rotation matrix once and for all.
+    rotation_matrix = get_rotation_matrix(ndim)
+
+    # Generate shift vector once and for all. Random according to boundaries of
+    # solution space, or fixed.
+    shift = np.random.uniform(low=0, high=1, size=ndim)
+
+    # Let's pretend the following loop is a full PSO run.
+    for i in range(1000):
+        # Just a point to evaluate.
+        x = np.random.uniform(low=0, high=1, size=ndim)
+
+        # Rotated Schwefel. This one is coded explicitely because it's a special snowflake.
+        value = schwefel_function_rotated(x, rotation_matrix)
+
+        # Rotated Rosenbrock.
+        value += rosenbrock(np.dot(rotation_matrix, x))
+
+        # Rotated Rastrigin.
+        value += rastrigin(np.dot(rotation_matrix, x))
+
+        # Shifted Rosenbrock.
+        value += rosenbrock(x - shift)
+
+        # Shifted Rastrigin.
+        value += rastrigin(x - shift)
+
+        # Shifted and rotated Rastrigin.
+        value += rastrigin(np.dot(rotation_matrix, x - shift))
+
+
+
+
+
+
