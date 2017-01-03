@@ -95,3 +95,18 @@ def griewank_function(array_genes):
     ndim = len(array_genes)
     value = 1 + 1.0 / 4000 * np.dot(array_genes, array_genes) - np.prod(np.cos(array_genes / np.sqrt(1+np.arange(ndim))))
     return value
+
+
+# Between -50 and 50
+def generalized_penalized_function(array_genes):
+    ndim = len(array_genes)
+    array = 1 + 1/4 * (array_genes + 1)
+    value = np.dot(np.square(array[:-1]-1), 1 + 10 * np.square(np.sin(math.pi * array[1:])))
+    value += np.square(np.sin(math.pi * array[0])) + np.square(array[-1]-1)
+    value *= math.pi / ndim
+
+    array = np.zeros(ndim)
+    array[array_genes > 10] = 100 * np.power(array[array > 10] - 10, 4)
+    array[array_genes < -10] = 100 * np.power(-array[array < -10] - 10, 4)
+    value += np.sum(array)
+    return value
