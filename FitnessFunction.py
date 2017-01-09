@@ -2,6 +2,7 @@ import math
 import numpy as np
 import random
 
+
 def calculate_fitness(fun_fitness, *args):
     return fun_fitness(*args)
 
@@ -65,7 +66,7 @@ def elliptic_function(array_genes):
     value = np.dot(np.power(1000000, np.arange(ndim) / (ndim - 1)), np.square(array_genes))
     return value
 
-# Between -100 and 100
+
 def sphere_function(array_genes):
     value = np.dot(array_genes, array_genes)
     return value
@@ -98,7 +99,6 @@ def griewank_function(array_genes):
 
 # Between -50 and 50
 def generalized_penalized_function(array_genes):
-    print array_genes
     ndim = len(array_genes)
     array = 1 + 1/4 * (array_genes + 1)
     value = np.dot(np.square(array[:-1]-1), 1 + 10 * np.square(np.sin(math.pi * array[1:])))
@@ -106,15 +106,14 @@ def generalized_penalized_function(array_genes):
     value *= math.pi / ndim
 
     array = np.zeros(ndim)
-    array[array_genes > 10] = 100 * np.power(array[array > 10] - 10, 4)
-    array[array_genes < -10] = 100 * np.power(-array[array < -10] - 10, 4)
+    array[array_genes > 10] = 100 * np.power(array[array_genes > 10] - 10, 4)
+    array[array_genes < -10] = 100 * np.power(-array[array_genes < -10] - 10, 4)
     value += np.sum(array)
     return value
 
 
 # Between -500 and 500. Using CLPSO's version of this function.
-def schwefel_function_rotated(array_genes):
-    rotation_matrix = get_rotation_matrix(len(array_genes))
+def schwefel_function_rotated(array_genes, rotation_matrix):
     ndim = len(array_genes)
     array_genes_rotated = np.dot(rotation_matrix, array_genes - 420.96) + 420.96
     array = np.zeros(ndim)
@@ -124,43 +123,6 @@ def schwefel_function_rotated(array_genes):
     array[more_indices] = 0.001 * np.square(np.abs(array_genes_rotated[more_indices]) - 500)
     value = np.sum(array)
     return (418.98288727243374296449474059045314788818359375*float(ndim)) - value
-
-
-# Between -10 and 10
-def rotated_rosenbrock(array_genes):
-    rotation_matrix = get_rotation_matrix(len(array_genes))
-    return rosenbrock(np.dot(rotation_matrix, array_genes))
-
-
-# Between -5.12 and 5.12
-def rotated_rastrigin(array_genes):
-    rotation_matrix = get_rotation_matrix(len(array_genes))
-    return rastrigin(np.dot(rotation_matrix, array_genes))
-
-
-# Between -10 and 10
-def shifted_rosenbrock(array_genes):
-    # Generate shift vector once and for all. Random according to boundaries of
-    # solution space, or fixed.
-    shift = np.random.uniform(low=0, high=1, size=len(array_genes))
-    return rosenbrock(array_genes - shift)
-
-
-# Between -5.12 and 5.12
-def shifted_rastrigin(array_genes):
-    # Generate shift vector once and for all. Random according to boundaries of
-    # solution space, or fixed.
-    shift = np.random.uniform(low=0, high=1, size=len(array_genes))
-    return rastrigin(array_genes - shift)
-
-
-# Between -5.12 and 5.12
-def shifted_rotated_rastrigin(array_genes):
-    # Generate shift vector once and for all. Random according to boundaries of
-    # solution space, or fixed.
-    shift = np.random.uniform(low=0, high=1, size=len(array_genes))
-    rotation_matrix = get_rotation_matrix(len(array_genes))
-    return rastrigin(np.dot(rotation_matrix, array_genes - shift))
 
 
 # Returns the rotation matrix of dimension ndim x ndim. Somewhat heavy computationally.
@@ -185,7 +147,7 @@ def example(ndim):
         # Just a point to evaluate.
         x = np.random.uniform(low=0, high=1, size=ndim)
 
-        # Rotated Schwefel. This one is coded explicitly because it's a special snowflake.
+        # Rotated Schwefel. This one is coded explicitely because it's a special snowflake.
         value = schwefel_function_rotated(x, rotation_matrix)
 
         # Rotated Rosenbrock.
@@ -204,14 +166,7 @@ def example(ndim):
         value += rastrigin(np.dot(rotation_matrix, x - shift))
 
 
-print weierstrass_function(np.zeros(30))  # Devrait etre 0
 
-print generalized_penalized_function(np.array([ 39.64546754,   3.31212216,  38.46741056,   2.52490725, -14.59639112,
-  25.21745867, -49.78028197,  42.39673434, -18.01247606, -38.9222462,
- -29.92107661, -45.67513987,  -9.12390295,   7.82861871,  14.01757052,
-  20.49470177,  30.09896991,  37.89842002, -17.06346487, -41.85537086,
- -15.53244804,  30.26884118, -39.77687885,   2.90989813,  -8.32871577,
- -22.35584682, -45.83625808, -43.51936569,  47.36093175,  -5.51105338,]))  # Ne devrait pas planter
 
 
 
