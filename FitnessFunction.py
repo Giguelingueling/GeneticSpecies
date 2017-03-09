@@ -125,6 +125,37 @@ def schwefel_function_rotated(array_genes, rotation_matrix):
     return (418.98288727243374296449474059045314788818359375*float(ndim)) - value
 
 
+# Between -100 and 100
+def happy_cat(array_genes):
+    ndim = len(array_genes)
+    sum_ = np.sum(array_genes)
+    sum_of_squares = np.sum(np.square(array_genes))
+    value = abs(sum_of_squares - ndim)**0.25 + (0.5 * sum_of_squares + sum_) / ndim + 0.5
+    return value
+
+
+# Between -100 and 100
+def katsuura(array_genes):
+    ndim = len(array_genes)
+    powers_of_two = np.power(2, np.arange(1, 33))
+    vector = np.zeros(ndim)
+    for i in range(ndim):
+        powers_of_two_times_x_i = powers_of_two * array_genes[i]
+        vector[i] = np.sum(np.abs(powers_of_two_times_x_i - np.round(powers_of_two_times_x_i)) / powers_of_two)
+    vector = (1 + np.arange(1, ndim + 1) * vector) ** (10 / ndim**1.2)
+    value = 10 / ndim**2 * (np.prod(vector) - 1)
+    return value
+
+
+# Between -100 and 100
+def hgbat(array_genes):
+    ndim = len(array_genes)
+    sum_ = np.sum(array_genes)
+    sum_of_squares = np.sum(np.square(array_genes))
+    value = abs(sum_of_squares**2 - sum_**2)**0.5 + (0.5 * sum_of_squares + sum_) / ndim + 0.5
+    return value
+
+
 # Returns the rotation matrix of dimension ndim x ndim. Somewhat heavy computationally.
 def get_rotation_matrix(ndim):
     matrix = np.eye(ndim)
