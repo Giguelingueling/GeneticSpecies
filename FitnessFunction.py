@@ -156,6 +156,14 @@ def hgbat(array_genes):
     return value
 
 
+# Between -100 and 100
+def levy(array_genes):
+    w = 1 + 0.25 * (array_genes - 1)
+    value = np.sum(np.square(w[:-1] - 1) * (1 + 10 * np.square(np.sin(np.pi * w[:-1] + 1))))
+    value += np.sin(np.pi * w[0])**2 + (w[-1] - 1)**2 * (1 + np.sin(2 * np.pi * w[-1])**2)
+    return value
+
+
 # Returns the rotation matrix of dimension ndim x ndim. Somewhat heavy computationally.
 def get_rotation_matrix(ndim):
     matrix = np.eye(ndim)
